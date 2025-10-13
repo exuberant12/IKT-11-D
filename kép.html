@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Találd meg a 3 különbséget</title>
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: repeating-linear-gradient(
+      45deg,
+      #333,
+      #333 20px,
+      #555 20px,
+      #555 40px
+    );
+    color: white;
+    text-align: center;
+  }
+
+  h1 {
+    margin-top: 20px;
+  }
+
+  .game-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    margin-top: 20px;
+  }
+
+  .image-wrapper {
+    position: relative;
+    display: inline-block;
+  }
+
+  .image-wrapper img {
+    width: 500px;
+    height: auto;
+    border: 3px solid white;
+    border-radius: 10px;
+  }
+
+  .marker {
+    position: absolute;
+    border: 3px solid limegreen;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    pointer-events: none;
+  }
+
+  .xmark {
+    position: absolute;
+    color: red;
+    font-size: 40px;
+    font-weight: bold;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  .info {
+    margin-top: 20px;
+    font-size: 20px;
+  }
+
+  .buttons {
+    margin-top: 15px;
+  }
+
+  button {
+    background-color: #222;
+    color: white;
+    border: 2px solid white;
+    border-radius: 10px;
+    padding: 10px 20px;
+    margin: 5px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  button:hover {
+    background-color: #444;
+  }
+
+  #nextLevel {
+    display: none;
+    background-color: darkorange;
+    border-color: orange;
+  }
+
+  #nextLevel:hover {
+    background-color: orange;
+  }
+</style>
+</head>
+<body>
+
+<h1>🔍 Találd meg a 3 különbséget!</h1>
+
+<div class="info">
+  ⏱ Idő: <span id="timer">10:00</span> |
+  🎯 Különbségek hátra: <span id="remaining">3</span> |
+  🖱 Kattintások: <span id="clicks">0</span>/20
+</div>
+
+<div class="buttons">
+  <button id="restart">🔄 Újrakezdés</button>
+  <button id="help">💡 Segítség (2x)</button>
+  <button id="nextLevel">➡️ Következő</button>
+</div>
+
+<div class="game-container">
+  <div class="image-wrapper" id="left">
+    <img src="ferrari1.png" alt="Bal kép">
+  </div>
+  <div class="image-wrapper" id="right">
+    <img src="ferrari2.png" alt="Jobb kép">
+  </div>
+</div>
+
+<script>
+const levels = [
+  {
+    leftImg: "ferrari1.png",
+    rightImg: "ferrari2.png",
+    differences: [
+      {x: 200, y: 150},
+      {x: 380, y: 220},
+      {x: 260, y: 250}
+    ]
+  },
+  {
+    leftImg: "papagály1.png",
+    rightImg: "papagály2.png",
+    differences: [
+      {x: 180, y: 130},
+      {x: 400, y: 250},
+      {x: 300, y: 270}
+    ]
+  }
+];
+
+let currentLevel = 0;
+let differences = JSON.parse(JSON.stringify(levels[currentLevel].differences));
+let found = 0;
+let clicks = 0;
+let timeLeft = 600; // 10 perc
+let helpUsed = 0;
+
+const remainingEl = document.getElementById("remaining");
+const clicksEl = document.getElementById("clicks");
+const timerEl = document.getElementById("timer");
+const helpBtn = document.getElementById("help");
+const restartBtn = document.getElementById("restart");
+const nextBtn = document.getElementById("nextLevel");
+const wrappers = document.querySelectorAll(".image-wrapper");
+
+// Időzítő
+function formatTime(seconds) {
+  const min = Math.floor(seconds / 60);
+  const sec = seconds % 60;
+  return `${min}:${sec.toString().padStart(2, "0")}`;
+}
+
+let countdown = setInterval(() => {
+  timeLeft--;
+  timerEl.textContent = formatTime(timeLeft);
+  if (timeLeft <= 0) {
+    clearInterval(countdown);
+    alert("⏰ Lejárt az idő!");
+    location.reload();
+  }
+}, 1000);
+
+// Kattintás kezelése
+function setupClicks() {
+  wrappers.forEach(wrapper => {
+    wrapper.innerHTML = `<img src="${wrapper.id === 'left' ? levels[currentLevel].leftImg : levels[currentLevel].rightImg}" alt="Kép">`;
+    wrapper.addEventListener("click", handleClick);
+  });
+}
+
+function handleClick(e) {
+  if (clicks >= 20 || found >= 3) return;
+  const wrapper = e.currentTarget;
+  const rect = wrapper.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  clicks++;
+  clicksEl.textContent = clicks;
+
+  let correct = false;
+  for (const diff of differences) {
+    if (Math.abs(x - diff.x) < 25 && Math.abs(y - diff.y) < 25 && !diff.found) {
+      correct = true;
+      diff.found = true;
+      found++;
+      remainingEl.textContent = 3 - found;
+      const marker = document.createElement("div");
+      marker.className = "marker";
+      marker.style.left = `${diff.x - 20}px`;
+      marker.style.top = `${diff.y - 20}px`;
+      wrapper.appendChild(marker);
+      break;
+    }
+  }
+
+  if (!correct) {
+    const xMark = document.createElement("div");
+    xMark.className = "xmark";
+    xMark.style.left = `${x}px`;
+    xMark.style.top = `${y}px`;
+    xMark.textContent = "✖";
+    wrapper.appendChild(xMark);
+    setTimeout(() => xMark.remove(), 800);
+  }
+
+  if (found === 3) {
+    clearInterval(countdown);
+    nextBtn.style.display = "inline-block";
+    alert("🎉 Gratulálok, megtaláltad mind a 3 különbséget!");
+  }
+
+  if (clicks >= 20 && found < 3) {
+    alert("😔 Elfogyott a 20 kattintásod!");
+    clearInterval(countdown);
+  }
+}
+
+setupClicks();
+
+// Újrakezdés gomb
+restartBtn.addEventListener("click", () => {
+  location.reload();
+});
+
+// Segítség gomb
+helpBtn.addEventListener("click", () => {
+  if (helpUsed >= 2) {
+    alert("❌ Már felhasználtad mindkét segítséget!");
+    return;
+  }
+  const notFound = differences.filter(d => !d.found);
+  if (notFound.length === 0) {
+    alert("🎉 Már mindet megtaláltad!");
+    return;
+  }
+  const randomDiff = notFound[Math.floor(Math.random() * notFound.length)];
+  wrappers.forEach(wrapper => {
+    const hint = document.createElement("div");
+    hint.className = "marker";
+    hint.style.borderColor = "yellow";
+    hint.style.left = `${randomDiff.x - 20}px`;
+    hint.style.top = `${randomDiff.y - 20}px`;
+    wrapper.appendChild(hint);
+    setTimeout(() => hint.remove(), 1500);
+  });
+  helpUsed++;
+});
+
+// Következő szint gomb
+nextBtn.addEventListener("click", () => {
+  currentLevel++;
+  if (currentLevel >= levels.length) {
+    alert("🎉 Gratulálok, az összes szintet teljesítetted!");
+    nextBtn.style.display = "none";
+    return;
+  }
+  differences = JSON.parse(JSON.stringify(levels[currentLevel].differences));
+  found = 0;
+  clicks = 0;
+  remainingEl.textContent = 3;
+  clicksEl.textContent = 0;
+  nextBtn.style.display = "none";
+  setupClicks();
+});
+</script>
+
+</body>
+</html>
