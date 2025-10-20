@@ -1,0 +1,12 @@
+.image-row {
+  display: flex;
+  justify-content: center; /* vagy space-between / flex-start stb. */
+  gap: 20px; /* Képek közötti távolság */
+}
+
+.image-row img {
+  max-width: 700px; /* vagy fix méret pl. 300px */
+  height: auto;
+  border: 1px solid #ccc; /* opcionális keret */
+  margin-top: 70px
+}
