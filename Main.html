@@ -1,26 +1,172 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <link rel="stylesheet" href="style.css">
-    <title>Keresd meg a különbséget!</title>
+  <meta charset="UTF-8">
+  <title>Memória játék</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* VIDEÓ HÁTTÉR */
+    #backgroundVideo {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      min-width: 100%;
+      min-height: 100%;
+      z-index: -1;
+      object-fit: cover;
+    }
+
+    .overlay {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .game-board {
+      display: grid;
+      grid-template-columns: repeat(4, 100px);
+      grid-gap: 15px;
+    }
+
+    .card {
+      width: 100px;
+      height: 100px;
+      background-color: #007BFF;
+      color: white;
+      font-size: 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      border-radius: 10px;
+      user-select: none;
+    }
+
+    .card.flipped {
+      background-color: #fff;
+      color: #333;
+      cursor: default;
+    }
+
+    .card.matched {
+      background-color: #28a745;
+      color: white;
+      cursor: default;
+    }
+
+    #timer {
+      font-size: 2rem;
+      color: white;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 5px black;
+    }
+  </style>
 </head>
 <body>
 
-    <div>
-        <h1 style="text-align: center; margin-top: 70px;">Keresd meg a különbséget!</h1>
-        <div class="d-flex">
-            <h4 style="margin-left: 100px; margin-top: 50px;">Idő: </h4>
-            <h4 style="margin-left: 130px; margin-top: 50px;">Pontszám:</h4>
-            <h4 style="margin-left: 160px; margin-top: 50px;">Megtalálva:</h4>
-        </div>
-        <div class="image-row">
-            <img src="1.jpg" alt="Első kép">
-            <img src="2.jpg" alt="Második kép">
-        </div>
-    </div>
+<!-- VIDEÓ HÁTTÉR -->
+<video autoplay muted loop id="backgroundVideo">
+  <source src="kek.mp4" type="video/mp4"> <!-- Ide írd a videó URL-jét -->
+  Your browser does not support HTML5 video.
+</video>
+
+<div class="overlay">
+  <div id="timer">05:00</div>
+  <div class="game-board" id="gameBoard"></div>
+</div>
+
+<script>
+  const cards = [
+    '🍎', '🍌', '🍇', '🍒',
+    '🍎', '🍌', '🍇', '🍒',
+    '🚗', '🚕', '🚗', '🚕' // új autó párok
+  ];
+  let flippedCards = [];
+  let matchedPairs = 0;
+
+  // Keverés
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+  }
+
+  shuffle(cards);
+
+  const board = document.getElementById('gameBoard');
+
+  cards.forEach((emoji, index) => {
+    const card = document.createElement('div');
+    card.classList.add('card');
+    card.dataset.emoji = emoji;
+    card.dataset.index = index;
+
+    card.addEventListener('click', () => {
+      if (
+        card.classList.contains('flipped') ||
+        card.classList.contains('matched') ||
+        flippedCards.length === 2
+      ) return;
+
+      card.classList.add('flipped');
+      card.textContent = emoji;
+      flippedCards.push(card);
+
+      if (flippedCards.length === 2) {
+        const [first, second] = flippedCards;
+
+        if (first.dataset.emoji === second.dataset.emoji) {
+          first.classList.add('matched');
+          second.classList.add('matched');
+          flippedCards = [];
+          matchedPairs++;
+          if (matchedPairs === cards.length / 2) {
+            setTimeout(() => alert('🎉 Gratulálok! Nyertél!'), 300);
+          }
+        } else {
+          setTimeout(() => {
+            first.classList.remove('flipped');
+            second.classList.remove('flipped');
+            first.textContent = '';
+            second.textContent = '';
+            flippedCards = [];
+          }, 1000);
+        }
+      }
+    });
+
+    board.appendChild(card);
+  });
+
+  // VISSZASZÁMLÁLÓ 5 PERC
+  let timeLeft = 5 * 60; // 5 perc másodpercben
+  const timerEl = document.getElementById('timer');
+
+  const countdown = setInterval(() => {
+    const minutes = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+    const seconds = String(timeLeft % 60).padStart(2, '0');
+    timerEl.textContent = `${minutes}:${seconds}`;
+    timeLeft--;
+
+    if (timeLeft < 0) {
+      clearInterval(countdown);
+      alert('⏰ Idő lejárt!');
+      // opcionális: újratöltés
+      // location.reload();
+    }
+  }, 1000);
+</script>
 
 </body>
 </html>
