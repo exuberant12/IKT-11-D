@@ -4,18 +4,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Keresd meg a különbséget!</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #fdf6e3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #ffe4b5; /* bisque */
+            width: 400px;
+            max-width: 90%;
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .title {
+            font-size: 32px;
+            margin-bottom: 40px;
+            color: #333;
+        }
+
+        .start-button {
+            display: inline-block;
+            padding: 15px 40px;
+            font-size: 24px;
+            color: #fff;
+            background-color: #ff7f50; /* coral */
+            text-decoration: none;
+            border-radius: 10px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .start-button:hover {
+            background-color: #ff6347; /* tomato */
+            transform: scale(1.05);
+        }
+    </style>
 </head>
-<body style="background-color: white;">
-    
-    <div style="height: 620px; width: 500px; background-color: bisque; margin: auto; margin-top: 150px;">
-        <div style="height: 620px; width: 500px; background-color: bisque; margin: auto; margin-top: 15px; display: flex; justify-content: center; align-items: flex-end;">
-            <a href="Main.html" style="margin-bottom: 300px; text-decoration: none; font-size: 28px; color: black;">
-                Kezdés
-            </a>
-        </div>
+<body>
+    <div class="container">
+        <div class="title">Keresd meg a különbséget!</div>
+        <a href="Main.html" class="start-button">Kezdés</a>
     </div>
-
-
-
 </body>
 </html>
