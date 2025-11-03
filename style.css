@@ -10,3 +10,74 @@
   border: 1px solid #ccc; /* opcionális keret */
   margin-top: 70px
 }
+
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* VIDEÓ HÁTTÉR */
+#backgroundVideo {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  min-width: 100%;
+  min-height: 100%;
+  z-index: -1;
+  object-fit: cover;
+}
+
+.overlay {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.game-board {
+  display: grid;
+  grid-template-columns: repeat(4, 100px);
+  grid-gap: 15px;
+}
+
+.game-board.level2 {
+  grid-template-columns: repeat(5, 100px);
+}
+
+.card {
+  width: 100px;
+  height: 100px;
+  background-color: #007BFF;
+  color: white;
+  font-size: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border-radius: 10px;
+  user-select: none;
+}
+
+.card.flipped {
+  background-color: #fff;
+  color: #333;
+  cursor: default;
+}
+
+.card.matched {
+  background-color: #28a745;
+  color: white;
+  cursor: default;
+}
+
+#timer {
+  font-size: 2rem;
+  color: white;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 5px black;
+}
